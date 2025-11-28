@@ -22,7 +22,7 @@
         <nav class="navbar">
             <div class="nav-container">
                 <a href="/" class="logo">
-                    <img src="<?= $basePath ?>/assets/images/logo.png" alt="GenevaSkills Logo"
+                    <img id="site-logo" src="<?= $basePath ?>/assets/images/logo.png" alt="GenevaSkills Logo"
                         style="height: 60px; width: auto;">
                 </a>
 

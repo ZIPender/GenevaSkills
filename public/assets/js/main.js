@@ -3,6 +3,7 @@ const initTheme = () => {
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.body.classList.toggle('dark-theme', savedTheme === 'dark');
     updateThemeIcon();
+    updateLogo();
 };
 
 const toggleTheme = () => {
@@ -10,6 +11,7 @@ const toggleTheme = () => {
     const isDark = document.body.classList.contains('dark-theme');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
     updateThemeIcon();
+    updateLogo();
 };
 
 const updateThemeIcon = () => {
@@ -17,6 +19,19 @@ const updateThemeIcon = () => {
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
         themeToggle.innerHTML = isDark ? '☀️' : '🌙';
+    }
+};
+
+const updateLogo = () => {
+    const isDark = document.body.classList.contains('dark-theme');
+    const logo = document.getElementById('site-logo');
+    if (logo) {
+        const src = logo.src;
+        if (isDark && !src.includes('logo_white.png')) {
+            logo.src = src.replace('logo.png', 'logo_white.png');
+        } else if (!isDark && src.includes('logo_white.png')) {
+            logo.src = src.replace('logo_white.png', 'logo.png');
+        }
     }
 };
 
