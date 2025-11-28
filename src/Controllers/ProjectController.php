@@ -42,16 +42,7 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function myProjects()
-    {
-        if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'company') {
-            $this->redirect('/login');
-        }
 
-        $project = new Project();
-        $projects = $project->getByCompanyId($_SESSION['user_id']);
-        $this->view('projects/my_projects', ['projects' => $projects, 'title' => 'Mes Projets']);
-    }
 
     public function show()
     {
@@ -105,7 +96,7 @@ class ProjectController extends Controller
             $skills = $_POST['skills'] ?? [];
             $project->updateSkills($project->id, $skills);
 
-            $this->redirect('/projects/my-projects');
+            $this->redirect('/profile/me?tab=projects');
         } else {
             // Handle error
             $this->redirect('/projects/create');
@@ -120,7 +111,7 @@ class ProjectController extends Controller
 
         $id = $_GET['id'] ?? null;
         if (!$id) {
-            $this->redirect('/projects/my-projects');
+            $this->redirect('/profile/me?tab=projects');
         }
 
         $projectModel = new Project();
@@ -128,7 +119,7 @@ class ProjectController extends Controller
 
         // Check ownership
         if (!$project || $project['company_id'] != $_SESSION['user_id']) {
-            $this->redirect('/projects/my-projects');
+            $this->redirect('/profile/me?tab=projects');
         }
 
         $category = new Category();
