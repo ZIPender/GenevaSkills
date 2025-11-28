@@ -235,4 +235,13 @@ class Project
 
         return $stmt->execute();
     }
+
+    public function countOpen()
+    {
+        $query = "SELECT COUNT(*) as total FROM " . $this->table . " WHERE status = 'open'";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['total'];
+    }
 }

@@ -18,6 +18,18 @@ class HomeController extends Controller
             $message = "Database connection successful!";
         }
 
-        $this->view('home/index', ['title' => 'Home', 'message' => $message]);
+        // Get counts
+        $projectModel = new \App\Models\Project();
+        $developerModel = new \App\Models\Developer();
+
+        $projectCount = $projectModel->countOpen();
+        $developerCount = $developerModel->count();
+
+        $this->view('home/index', [
+            'title' => 'Home',
+            'message' => $message,
+            'projectCount' => $projectCount,
+            'developerCount' => $developerCount
+        ]);
     }
 }

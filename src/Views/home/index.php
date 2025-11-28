@@ -27,14 +27,14 @@
                 <div class="floating-card card-1">
                     <div class="card-icon">💼</div>
                     <div class="card-text">
-                        <strong>50+ Projets</strong>
+                        <strong><?= $projectCount ?>+ Projets</strong>
                         <span>Actifs</span>
                     </div>
                 </div>
                 <div class="floating-card card-2">
                     <div class="card-icon">👨‍💻</div>
                     <div class="card-text">
-                        <strong>100+ Développeurs</strong>
+                        <strong><?= $developerCount ?>+ Développeurs</strong>
                         <span>Talents locaux</span>
                     </div>
                 </div>
@@ -54,32 +54,37 @@
 <div class="landing-features">
     <div class="container">
         <h2 class="section-title">Pourquoi choisir GenevaSkills ?</h2>
-        <p class="section-subtitle">Une plateforme conçue pour faciliter les rencontres professionnelles</p>
+        <p class="section-subtitle">Une plateforme conçue pour faciliter les rencontres professionnelles
+        </p>
 
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon">🎯</div>
                 <h3>Ciblé et Local</h3>
-                <p>Concentrez-vous sur les opportunités à Genève. Pas de perte de temps avec des offres hors zone.</p>
+                <p>Concentrez-vous sur les opportunités à Genève. Pas de perte de temps avec des offres
+                    hors zone.</p>
             </div>
 
             <div class="feature-card">
                 <div class="feature-icon">⚡</div>
                 <h3>Réactivité</h3>
-                <p>Messagerie intégrée pour échanger rapidement avec les entreprises et les développeurs.</p>
+                <p>Messagerie intégrée pour échanger rapidement avec les entreprises et les
+                    développeurs.</p>
             </div>
 
             <div class="feature-card">
                 <div class="feature-icon">🔍</div>
                 <h3>Filtres Intelligents</h3>
-                <p>Trouvez exactement ce que vous cherchez grâce à nos filtres par compétences, expérience et catégorie.
+                <p>Trouvez exactement ce que vous cherchez grâce à nos filtres par compétences,
+                    expérience et catégorie.
                 </p>
             </div>
 
             <div class="feature-card">
                 <div class="feature-icon">✨</div>
                 <h3>Interface Moderne</h3>
-                <p>Profitez d'une expérience utilisateur fluide et intuitive, optimisée pour tous les appareils.</p>
+                <p>Profitez d'une expérience utilisateur fluide et intuitive, optimisée pour tous les
+                    appareils.</p>
             </div>
 
             <div class="feature-card">
@@ -106,7 +111,8 @@
             <div class="how-step">
                 <div class="step-number">1</div>
                 <h3>Inscription Gratuite</h3>
-                <p>Créez votre profil en quelques minutes. C'est simple, rapide et totalement gratuit.</p>
+                <p>Créez votre profil en quelques minutes. C'est simple, rapide et totalement gratuit.
+                </p>
             </div>
 
             <div class="how-step">
@@ -135,11 +141,13 @@
     <div class="container">
         <div class="cta-content">
             <h2>Prêt à démarrer ?</h2>
-            <p>Rejoignez dès maintenant la communauté GenevaSkills et donnez un coup d'accélérateur à votre carrière ou
+            <p>Rejoignez dès maintenant la communauté GenevaSkills et donnez un coup d'accélérateur à
+                votre carrière ou
                 à votre recrutement.</p>
             <?php if (!isset($_SESSION['user_id'])): ?>
                 <div class="cta-buttons">
-                    <a href="/register?type=developer" class="btn btn-primary btn-lg">Je suis développeur</a>
+                    <a href="/register?type=developer" class="btn btn-primary btn-lg">Je suis
+                        développeur</a>
                     <a href="/register?type=company" class="btn btn-secondary btn-lg">Je recrute</a>
                 </div>
             <?php else: ?>
