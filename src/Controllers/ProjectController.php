@@ -167,7 +167,7 @@ class ProjectController extends Controller
             $skills = $_POST['skills'] ?? [];
             $project->updateSkills($project->id, $skills);
 
-            $this->redirect('/projects/my-projects');
+            $this->redirect('/profile/me?tab=projects');
         } else {
             $this->redirect('/projects/edit?id=' . $project->id);
         }

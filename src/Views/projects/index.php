@@ -1,5 +1,10 @@
 <div class="container">
-    <h2 class="page-title">Projets disponibles</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 class="page-title" style="margin: 0;">Projets disponibles</h2>
+        <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'company'): ?>
+            <a href="/projects/create" class="btn btn-primary">Créer un projet</a>
+        <?php endif; ?>
+    </div>
 
     <div class="card filter-card" style="margin-bottom: 2rem;">
         <form action="/projects" method="GET" style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem;">

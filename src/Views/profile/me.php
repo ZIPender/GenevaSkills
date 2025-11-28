@@ -132,18 +132,18 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
                                         </p>
                                     </div>
                                     <div class="conv-actions" style="display: flex; align-items: center; gap: 10px;">
-                                        <?php if ($conv['unread_count'] > 0): ?>
-                                            <span
-                                                class="badge-count"><?= $conv['unread_count'] > 99 ? '99+' : $conv['unread_count'] ?></span>
-                                        <?php endif; ?>
-                                        <button class="btn-delete-conv" onclick="deleteConversation(event, <?= $conv['id'] ?>)"
-                                            title="Supprimer la conversation"
-                                            style="background: none; border: none; cursor: pointer; color: #999; font-size: 1.2rem; padding: 0 5px;">
-                                            &times;
-                                        </button>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
+                                                <?php if ($conv['unread_count'] > 0): ?>
+                                                        <span
+                                                            class="badge-count"><?= $conv['unread_count'] > 99 ? '99+' : $conv['unread_count'] ?></span>
+                                                <?php endif; ?>
+                                                <button class="btn-delete-conv" onclick="deleteConversation(event, <?= $conv['id'] ?>)"
+                                                    title="Supprimer la conversation"
+                                                    style="background: none; border: none; cursor: pointer; color: #999; font-size: 1.2rem; padding: 0 5px;">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                        </div>
+                                <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -162,24 +162,48 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
     const userType = '<?= $_SESSION['user_type'] ?>';
     const tempProjectData = <?= isset($tempProject) ? json_encode($tempProject) : 'null' ?>;
 
-    document.querySelectorAll('.sidebar-item').forEach(link => {
-        link.addEventListener('click', function (e) {
-            e.preventDefault();
-            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
-            document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
-            document.getElementById('section-' + this.dataset.section).classList.add('active');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sidebar navigation
+        document.querySelectorAll('.sidebar-item').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sectionId = this.dataset.section;
+                
+                // Update sidebar active state
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update section visibility
+                document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
+                document.getElementById('section-' + sectionId).classList.add('active');
+            });
         });
-    });
 
-    // Auto-open messaging if temp project exists
-    if (tempProjectData) {
-        document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-        document.querySelector('.sidebar-item[data-section="messages"]').classList.add('active');
-        document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
-        document.getElementById('section-messages').classList.add('active');
-        setTimeout(() => openTempChat(tempProjectData), 100);
-    }
+        // Handle tab parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        if (tab) {
+            const targetLink = document.querySelector(`.sidebar-item[data-section="${tab}"]`);
+            if (targetLink) {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                targetLink.classList.add('active');
+                document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
+                document.getElementById('section-' + tab).classList.add('active');
+            }
+        }
+
+        // Auto-open messaging if temp project exists
+        if (tempProjectData) {
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            document.querySelector('.sidebar-item[data-section="messages"]').classList.add('active');
+            document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('section-messages').classList.add('active');
+            setTimeout(() => openTempChat(tempProjectData), 100);
+        }
+
+        // Start polling
+        startGlobalPolling();
+    });
 
     // Global Polling for unread counts and list order
     function startGlobalPolling() {
@@ -207,12 +231,12 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
 
         conversations.forEach(conv => {
             let item = list.querySelector(`.conversation-item[data-conv-id="${conv.id}"]`);
-            
+
             if (item) {
                 // Update badge
                 const actionsDiv = item.querySelector('.conv-actions');
                 let badge = item.querySelector('.badge-count');
-                
+
                 if (conv.unread_count > 0) {
                     if (badge) {
                         badge.textContent = conv.unread_count > 99 ? '99+' : conv.unread_count;
@@ -228,7 +252,7 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
 
                 // Move to top if needed (simple reordering based on server order)
                 if (list.firstElementChild !== item) {
-                     list.prepend(item);
+                    list.prepend(item);
                 }
 
             } else {
@@ -237,9 +261,9 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
                 div.className = 'conversation-item';
                 div.dataset.convId = conv.id;
                 div.onclick = () => openChat(conv.id);
-                
+
                 const otherName = (userType === 'developer') ? conv.company_name : (conv.dev_first_name + ' ' + conv.dev_last_name);
-                
+
                 div.innerHTML = `
                     <div class="conv-info">
                         <h4 class="conv-title">${escapeHtml(conv.project_title)}</h4>
@@ -257,13 +281,11 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
                 list.prepend(div);
             }
         });
-        
+
         updateBadges();
     }
-    
-    startGlobalPolling();
 
-    window.openChat = function (convId) {
+    window.openChat = function(convId) {
         const chatArea = document.getElementById('chat-area');
         if (!chatArea) return;
 
@@ -288,7 +310,9 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
                         script.parentNode.replaceChild(newScript, script);
                     });
 
-                    fetch('/messages/mark-read?conversation_id=' + convId, { method: 'POST' })
+                    fetch('/messages/mark-read?conversation_id=' + convId, {
+                            method: 'POST'
+                        })
                         .then(() => {
                             const badge = document.querySelector('.conversation-item[data-conv-id="' + convId + '"] .badge-count');
                             if (badge) badge.remove();
@@ -302,7 +326,7 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
             });
     };
 
-    window.openTempChat = function (project) {
+    window.openTempChat = function(project) {
         const chatArea = document.getElementById('chat-area');
         if (!chatArea) return;
 
@@ -333,7 +357,7 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
         const form = document.querySelector('.message-form[data-temp-project-id]');
         if (!form) return;
 
-        form.addEventListener('submit', async function (e) {
+        form.addEventListener('submit', async function(e) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -352,7 +376,9 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
 
                 const response = await fetch('/messages/store', {
                     method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
                     body: formData
                 });
 
@@ -403,7 +429,7 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
         return div.innerHTML;
     }
 
-    window.deleteConversation = function (event, convId) {
+    window.deleteConversation = function(event, convId) {
         event.stopPropagation(); // Prevent opening the chat
 
         // Create custom modal
@@ -484,12 +510,12 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
         }
     };
 
-    window.closeDeleteModal = function () {
+    window.closeDeleteModal = function() {
         const modal = document.querySelector('.delete-modal-overlay');
         if (modal) modal.remove();
     };
 
-    window.confirmDelete = function (convId) {
+    window.confirmDelete = function(convId) {
         closeDeleteModal();
 
         const btn = document.querySelector('.conversation-item[data-conv-id="' + convId + '"] .btn-delete-conv');
@@ -499,12 +525,12 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
         }
 
         fetch('/messages/delete', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'conversation_id=' + convId
-        })
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'conversation_id=' + convId
+            })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
