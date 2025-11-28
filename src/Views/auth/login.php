@@ -14,7 +14,7 @@
                     <div class="alert alert-danger"><?= $error ?></div>
                 <?php endif; ?>
 
-                <form action="/login" method="POST" class="modern-form">
+                <form action="/login" method="POST" class="modern-form" novalidate>
                     <div class="form-group">
                         <label>Je suis :</label>
                         <div class="toggle-switch">

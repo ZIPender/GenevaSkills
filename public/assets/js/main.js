@@ -42,21 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize theme
     initTheme();
 
-    // Client-side password validation
-    const passwordInputs = document.querySelectorAll('input[type="password"]');
-    passwordInputs.forEach(input => {
-        if (input.name === 'password' && input.form) {
-            input.form.addEventListener('submit', (e) => {
-                const password = input.value;
-                const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-
-                if (!pattern.test(password)) {
-                    e.preventDefault();
-                    alert('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.');
-                }
-            });
-        }
-    });
+    // Client-side password validation removed to use server-side validation with custom UI
 
     // Delete confirmations
     const deleteButtons = document.querySelectorAll('a[href*="delete"], button[data-action="delete"]');
