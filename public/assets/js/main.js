@@ -1,21 +1,21 @@
 // Theme Toggle
 const initTheme = () => {
     const savedTheme = localStorage.getItem('theme') || 'light';
-    document.body.classList.toggle('dark-theme', savedTheme === 'dark');
+    document.documentElement.classList.toggle('dark-theme', savedTheme === 'dark');
     updateThemeIcon();
     updateLogo();
 };
 
 const toggleTheme = () => {
-    document.body.classList.toggle('dark-theme');
-    const isDark = document.body.classList.contains('dark-theme');
+    document.documentElement.classList.toggle('dark-theme');
+    const isDark = document.documentElement.classList.contains('dark-theme');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
     updateThemeIcon();
     updateLogo();
 };
 
 const updateThemeIcon = () => {
-    const isDark = document.body.classList.contains('dark-theme');
+    const isDark = document.documentElement.classList.contains('dark-theme');
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
         themeToggle.innerHTML = isDark ? '☀️' : '🌙';
@@ -23,7 +23,7 @@ const updateThemeIcon = () => {
 };
 
 const updateLogo = () => {
-    const isDark = document.body.classList.contains('dark-theme');
+    const isDark = document.documentElement.classList.contains('dark-theme');
     const logo = document.getElementById('site-logo');
     if (logo) {
         const src = logo.src;

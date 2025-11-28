@@ -15,6 +15,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="<?= $basePath ?>/assets/images/favicon.ico">
     <script src="<?= $basePath ?>/assets/js/main.js" defer></script>
+    <script>
+        // Immediately apply theme to avoid flashbang
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark-theme');
+            }
+        })();
+    </script>
 </head>
 
 <body>

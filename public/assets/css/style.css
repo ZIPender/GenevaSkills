@@ -35,7 +35,7 @@
 }
 
 /* Dark Theme */
-body.dark-theme {
+html.dark-theme {
     --bg-primary: #1a1d29;
     --bg-secondary: #242938;
     --bg-tertiary: #2d3348;
