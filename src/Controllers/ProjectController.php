@@ -184,7 +184,7 @@ class ProjectController extends Controller
             $project = new Project();
             $project->delete($id, $_SESSION['user_id']);
         }
-        $this->redirect('/projects/my-projects');
+        $this->redirect('/profile/me?tab=projects');
     }
 
     public function getOpenProjects()
