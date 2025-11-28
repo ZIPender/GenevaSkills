@@ -40,4 +40,32 @@ class DeveloperController extends Controller
             'title' => 'Développeurs'
         ]);
     }
+
+    public function show()
+    {
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'company') {
+            $this->redirect('/login');
+        }
+
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            $this->redirect('/developers');
+        }
+
+        $developerModel = new Developer();
+        $developer = $developerModel->getById($id);
+
+        if (!$developer) {
+            $this->redirect('/developers');
+        }
+
+        // Get developer skills
+        $skills = $developerModel->getSkills($id);
+
+        $this->view('developers/show', [
+            'developer' => $developer,
+            'skills' => $skills,
+            'title' => htmlspecialchars($developer['first_name'] . ' ' . $developer['last_name'])
+        ]);
+    }
 }

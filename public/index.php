@@ -72,6 +72,10 @@ $router->add('GET', '/admin/skills/delete', 'AdminController', 'deleteSkill');
 
 // Developers
 $router->add('GET', '/developers', 'DeveloperController', 'index');
+$router->add('GET', '/developers/show', 'DeveloperController', 'show');
+
+// API
+$router->add('GET', '/api/projects/open', 'ProjectController', 'getOpenProjects');
 
 // Dispatch
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

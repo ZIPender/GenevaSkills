@@ -186,4 +186,34 @@ class ProjectController extends Controller
         }
         $this->redirect('/projects/my-projects');
     }
+
+    public function getOpenProjects()
+    {
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'company') {
+            header('HTTP/1.1 401 Unauthorized');
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Unauthorized']);
+            exit;
+        }
+
+        $projectModel = new Project();
+        $allProjects = $projectModel->getByCompanyId($_SESSION['user_id']);
+
+        // Filter only open projects
+        $openProjects = array_filter($allProjects, function ($project) {
+            return $project['is_open'] == 1 || (isset($project['status']) && $project['status'] === 'open');
+        });
+
+        // Return only id and title
+        $projects = array_map(function ($project) {
+            return [
+                'id' => $project['id'],
+                'title' => $project['title']
+            ];
+        }, array_values($openProjects));
+
+        header('Content-Type: application/json');
+        echo json_encode(['projects' => $projects]);
+        exit;
+    }
 }

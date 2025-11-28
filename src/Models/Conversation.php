@@ -16,6 +16,7 @@ class Conversation
     public $company_id;
     public $dev_accepted;
     public $company_accepted;
+    public $status;
     public $created_at;
 
     public function __construct()
@@ -27,14 +28,15 @@ class Conversation
     public function create()
     {
         $query = "INSERT INTO " . $this->table . " 
-                (project_id, developer_id, company_id) 
-                VALUES (:project_id, :developer_id, :company_id)";
+                (project_id, developer_id, company_id, status) 
+                VALUES (:project_id, :developer_id, :company_id, :status)";
 
         $stmt = $this->conn->prepare($query);
 
         $stmt->bindParam(':project_id', $this->project_id);
         $stmt->bindParam(':developer_id', $this->developer_id);
         $stmt->bindParam(':company_id', $this->company_id);
+        $stmt->bindParam(':status', $this->status);
 
         if ($stmt->execute()) {
             $this->id = $this->conn->lastInsertId();
@@ -138,6 +140,15 @@ class Conversation
         // Delete conversation
         $query = "DELETE FROM " . $this->table . " WHERE id = :id";
         $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
+    public function updateStatus($id, $status)
+    {
+        $query = "UPDATE " . $this->table . " SET status = :status WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':status', $status);
         $stmt->bindParam(':id', $id);
         return $stmt->execute();
     }

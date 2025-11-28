@@ -54,7 +54,7 @@
 
     <div class="project-list" id="developers-list">
         <?php foreach ($developers as $dev): ?>
-            <div class="card project-card">
+            <div class="card project-card" onclick="window.location.href='/developers/show?id=<?= $dev['id'] ?>'" style="cursor: pointer;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
                     <div
                         style="width: 50px; height: 50px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 600; color: var(--primary);">
@@ -66,8 +66,8 @@
                     </div>
                 </div>
 
-                <p style="color: var(--text-secondary); line-height: 1.6; flex: 1;">
-                    <?= substr(htmlspecialchars($dev['bio']), 0, 150) ?>...
+                <p style="color: var(--text-secondary); line-height: 1.6; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; min-height: 3.2em;">
+                    <?= htmlspecialchars($dev['bio']) ?>
                 </p>
             </div>
         <?php endforeach; ?>
@@ -84,7 +84,7 @@
     .project-card {
         display: flex;
         flex-direction: column;
-        height: 100%;
+        min-height: 180px;
     }
 
     .project-card:hover {
@@ -265,6 +265,8 @@
                     data.developers.forEach(dev => {
                         const card = document.createElement('div');
                         card.className = 'card project-card';
+                        card.style.cursor = 'pointer';
+                        card.onclick = () => window.location.href = '/developers/show?id=' + dev.id;
                         const initials = (dev.first_name.charAt(0) + dev.last_name.charAt(0)).toUpperCase();
                         card.innerHTML = `
                     <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
@@ -276,8 +278,8 @@
                             <span class="badge badge-category">${ucfirst(dev.experience_level)}</span>
                         </div>
                     </div>
-                    <p style="color: var(--text-secondary); line-height: 1.6; flex: 1;">
-                        ${escapeHtml(dev.bio).substring(0, 150)}...
+                    <p style="color: var(--text-secondary); line-height: 1.6; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; min-height: 3.2em;">
+                        ${escapeHtml(dev.bio)}
                     </p>
                 `;
                         container.appendChild(card);
