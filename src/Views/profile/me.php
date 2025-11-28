@@ -13,16 +13,16 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
                 <span class="sidebar-text">Mon Profil</span>
             </a>
             <?php if ($type === 'company'): ?>
-                        <a href="#" class="sidebar-item" data-section="projects">
-                            <span class="sidebar-icon">📁</span>
-                            <span class="sidebar-text">Mes Projets</span>
-                        </a>
+                <a href="#" class="sidebar-item" data-section="projects">
+                    <span class="sidebar-icon">📁</span>
+                    <span class="sidebar-text">Mes Projets</span>
+                </a>
             <?php endif; ?>
             <a href="#" class="sidebar-item" data-section="messages">
                 <span class="sidebar-icon">💬</span>
                 <span class="sidebar-text">Messagerie</span>
                 <?php if ($totalUnread > 0): ?>
-                            <span class="badge-count"><?= $totalUnread > 99 ? '99+' : $totalUnread ?></span>
+                    <span class="badge-count"><?= $totalUnread > 99 ? '99+' : $totalUnread ?></span>
                 <?php endif; ?>
             </a>
         </nav>
@@ -36,79 +36,79 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
                     <a href="/profile/edit" class="btn btn-secondary">Modifier</a>
                 </div>
                 <?php if ($type === 'developer'): ?>
-                            <div class="profile-info">
-                                <h3><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?></h3>
-                                <p class="subtitle"><?= htmlspecialchars($user['experience_level']) ?></p>
-                            </div>
-                            <div class="profile-block">
-                                <h4>À propos</h4>
-                                <p><?= nl2br(htmlspecialchars($user['bio'])) ?></p>
-                            </div>
-                            <div class="profile-block">
-                                <h4>Compétences</h4>
-                                <div class="skills-list">
-                                    <?php if (!empty($user['skills'])): ?>
-                                                <?php foreach ($user['skills'] as $skill): ?>
-                                                            <span class="badge badge-primary"><?= htmlspecialchars($skill['name']) ?></span>
-                                                <?php endforeach; ?>
-                                    <?php else: ?>
-                                                <p class="text-muted">Aucune compétence ajoutée</p>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                <?php else: ?>
-                            <div class="profile-info">
-                                <h3><?= htmlspecialchars($user['name']) ?></h3>
-                                <p class="subtitle">Entreprise</p>
-                            </div>
-                            <div class="profile-block">
-                                <h4>À propos</h4>
-                                <p><?= nl2br(htmlspecialchars($user['description'])) ?></p>
-                            </div>
-                            <?php if ($user['website']): ?>
-                                        <div class="profile-block">
-                                            <h4>Site web</h4>
-                                            <a href="<?= htmlspecialchars($user['website']) ?>" target="_blank"
-                                                class="btn btn-secondary btn-sm">Visiter →</a>
-                                        </div>
+                    <div class="profile-info">
+                        <h3><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?></h3>
+                        <p class="subtitle"><?= htmlspecialchars($user['experience_level']) ?></p>
+                    </div>
+                    <div class="profile-block">
+                        <h4>À propos</h4>
+                        <p><?= nl2br(htmlspecialchars($user['bio'])) ?></p>
+                    </div>
+                    <div class="profile-block">
+                        <h4>Compétences</h4>
+                        <div class="skills-list">
+                            <?php if (!empty($user['skills'])): ?>
+                                <?php foreach ($user['skills'] as $skill): ?>
+                                    <span class="badge badge-primary"><?= htmlspecialchars($skill['name']) ?></span>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="text-muted">Aucune compétence ajoutée</p>
                             <?php endif; ?>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="profile-info">
+                        <h3><?= htmlspecialchars($user['name']) ?></h3>
+                        <p class="subtitle">Entreprise</p>
+                    </div>
+                    <div class="profile-block">
+                        <h4>À propos</h4>
+                        <p><?= nl2br(htmlspecialchars($user['description'])) ?></p>
+                    </div>
+                    <?php if ($user['website']): ?>
+                        <div class="profile-block">
+                            <h4>Site web</h4>
+                            <a href="<?= htmlspecialchars($user['website']) ?>" target="_blank"
+                                class="btn btn-secondary btn-sm">Visiter →</a>
+                        </div>
+                    <?php endif; ?>
                 <?php endif; ?>
             </div>
         </section>
 
         <?php if ($type === 'company'): ?>
-                    <section id="section-projects" class="profile-section">
-                        <div class="card">
-                            <div class="section-header">
-                                <h2>Mes Projets</h2>
-                                <a href="/projects/create" class="btn btn-primary">Nouveau</a>
-                            </div>
-                            <?php if (empty($projects)): ?>
-                                        <div class="empty-state">
-                                            <p>Aucun projet publié</p>
-                                        </div>
-                            <?php else: ?>
-                                        <div class="project-grid">
-                                            <?php foreach ($projects as $project): ?>
-                                                        <div class="project-item card">
-                                                            <div class="project-header">
-                                                                <h4><?= htmlspecialchars($project['title']) ?></h4>
-                                                                <span class="badge <?= $project['is_open'] ? 'badge-success' : 'badge-danger' ?>">
-                                                                    <?= $project['is_open'] ? 'Ouvert' : 'Fermé' ?>
-                                                                </span>
-                                                            </div>
-                                                            <p class="project-desc"><?= substr(htmlspecialchars($project['description']), 0, 100) ?>...</p>
-                                                            <div class="project-actions">
-                                                                <a href="/projects/show?id=<?= $project['id'] ?>" class="btn btn-xs btn-secondary">Voir</a>
-                                                                <a href="/projects/edit?id=<?= $project['id'] ?>"
-                                                                    class="btn btn-xs btn-secondary">Modifier</a>
-                                                            </div>
-                                                        </div>
-                                            <?php endforeach; ?>
-                                        </div>
-                            <?php endif; ?>
+            <section id="section-projects" class="profile-section">
+                <div class="card">
+                    <div class="section-header">
+                        <h2>Mes Projets</h2>
+                        <a href="/projects/create" class="btn btn-primary">Nouveau</a>
+                    </div>
+                    <?php if (empty($projects)): ?>
+                        <div class="empty-state">
+                            <p>Aucun projet publié</p>
                         </div>
-                    </section>
+                    <?php else: ?>
+                        <div class="project-grid">
+                            <?php foreach ($projects as $project): ?>
+                                <div class="project-item card">
+                                    <div class="project-header">
+                                        <h4><?= htmlspecialchars($project['title']) ?></h4>
+                                        <span class="badge <?= $project['is_open'] ? 'badge-success' : 'badge-danger' ?>">
+                                            <?= $project['is_open'] ? 'Ouvert' : 'Fermé' ?>
+                                        </span>
+                                    </div>
+                                    <p class="project-desc"><?= substr(htmlspecialchars($project['description']), 0, 100) ?>...</p>
+                                    <div class="project-actions">
+                                        <a href="/projects/show?id=<?= $project['id'] ?>" class="btn btn-xs btn-secondary">Voir</a>
+                                        <a href="/projects/edit?id=<?= $project['id'] ?>"
+                                            class="btn btn-xs btn-secondary">Modifier</a>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
         <?php endif; ?>
 
         <section id="section-messages" class="profile-section">
@@ -117,32 +117,32 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
                     <h3 class="panel-title">Conversations</h3>
                     <div class="conversations-list">
                         <?php if (empty($conversations)): ?>
-                                    <div class="empty-state">
-                                        <p>Aucune conversation</p>
-                                    </div>
+                            <div class="empty-state">
+                                <p>Aucune conversation</p>
+                            </div>
                         <?php else: ?>
-                                    <?php foreach ($conversations as $conv): ?>
-                                                <div class="conversation-item" data-conv-id="<?= $conv['id'] ?>"
-                                                    onclick="openChat(<?= $conv['id'] ?>)">
-                                                    <div class="conv-info">
-                                                        <h4 class="conv-title"><?= htmlspecialchars($conv['project_title']) ?></h4>
-                                                        <p class="conv-with">
-                                                            <?= ($type === 'developer') ? htmlspecialchars($conv['company_name']) : htmlspecialchars($conv['dev_first_name'] . ' ' . $conv['dev_last_name']) ?>
-                                                        </p>
-                                                    </div>
-                                                    <div class="conv-actions" style="display: flex; align-items: center; gap: 10px;">
-                                                        <?php if ($conv['unread_count'] > 0): ?>
-                                                                    <span
-                                                                        class="badge-count"><?= $conv['unread_count'] > 99 ? '99+' : $conv['unread_count'] ?></span>
-                                                        <?php endif; ?>
-                                                        <button class="btn-delete-conv" onclick="deleteConversation(event, <?= $conv['id'] ?>)" 
-                                                                title="Supprimer la conversation"
-                                                                style="background: none; border: none; cursor: pointer; color: #999; font-size: 1.2rem; padding: 0 5px;">
-                                                            &times;
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                    <?php endforeach; ?>
+                            <?php foreach ($conversations as $conv): ?>
+                                <div class="conversation-item" data-conv-id="<?= $conv['id'] ?>"
+                                    onclick="openChat(<?= $conv['id'] ?>)">
+                                    <div class="conv-info">
+                                        <h4 class="conv-title"><?= htmlspecialchars($conv['project_title']) ?></h4>
+                                        <p class="conv-with">
+                                            <?= ($type === 'developer') ? htmlspecialchars($conv['company_name']) : htmlspecialchars($conv['dev_first_name'] . ' ' . $conv['dev_last_name']) ?>
+                                        </p>
+                                    </div>
+                                    <div class="conv-actions" style="display: flex; align-items: center; gap: 10px;">
+                                        <?php if ($conv['unread_count'] > 0): ?>
+                                            <span
+                                                class="badge-count"><?= $conv['unread_count'] > 99 ? '99+' : $conv['unread_count'] ?></span>
+                                        <?php endif; ?>
+                                        <button class="btn-delete-conv" onclick="deleteConversation(event, <?= $conv['id'] ?>)"
+                                            title="Supprimer la conversation"
+                                            style="background: none; border: none; cursor: pointer; color: #999; font-size: 1.2rem; padding: 0 5px;">
+                                            &times;
+                                        </button>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -167,13 +167,13 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
     function connectGlobalWebSocket() {
         globalWs = new WebSocket(`ws://localhost:8000?user_id=${userId}&user_type=${userType}`);
 
-        globalWs.onopen = function() {
+        globalWs.onopen = function () {
             console.log('Global WebSocket connected');
         };
 
-        globalWs.onmessage = function(e) {
+        globalWs.onmessage = function (e) {
             const data = JSON.parse(e.data);
-            
+
             if (data.type === 'new_message') {
                 handleGlobalNewMessage(data);
             } else if (data.type === 'project_accepted') {
@@ -181,12 +181,12 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
             }
         };
 
-        globalWs.onclose = function() {
+        globalWs.onclose = function () {
             console.log('Global WebSocket disconnected. Reconnecting...');
             setTimeout(connectGlobalWebSocket, 3000);
         };
 
-        globalWs.onerror = function(err) {
+        globalWs.onerror = function (err) {
             console.error('Global WebSocket error:', err);
             globalWs.close();
         };
@@ -195,18 +195,18 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
     function handleGlobalNewMessage(data) {
         const convId = data.conversation_id;
         const isFromMe = (data.sender_id == userId && data.sender_type === userType);
-        
+
         // Update conversation list order
         const conversationsList = document.querySelector('.conversations-list');
         if (conversationsList) {
             const convItem = document.querySelector('.conversation-item[data-conv-id="' + convId + '"]');
-            
+
             if (convItem) {
                 // Move conversation to top
                 const firstConv = conversationsList.querySelector('.conversation-item');
                 if (firstConv && firstConv !== convItem) {
                     conversationsList.insertBefore(convItem, firstConv);
-                    
+
                     // Add a subtle highlight animation
                     convItem.style.transition = 'background-color 0.3s';
                     convItem.style.backgroundColor = 'var(--bg-secondary, #f5f5f5)';
@@ -214,7 +214,7 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
                         convItem.style.backgroundColor = '';
                     }, 1000);
                 }
-                
+
                 // Update unread count if message is from other person
                 if (!isFromMe) {
                     let badge = convItem.querySelector('.badge-count');
@@ -273,7 +273,7 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
                 const content = doc.querySelector('.chat-view-content');
                 if (content) {
                     chatArea.innerHTML = content.outerHTML;
-                    
+
                     // Execute scripts found in the injected content
                     const scripts = chatArea.querySelectorAll('script');
                     scripts.forEach(script => {
@@ -398,9 +398,9 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
         return div.innerHTML;
     }
 
-    window.deleteConversation = function(event, convId) {
+    window.deleteConversation = function (event, convId) {
         event.stopPropagation(); // Prevent opening the chat
-        
+
         // Create custom modal
         const modal = document.createElement('div');
         modal.className = 'delete-modal-overlay';
@@ -416,7 +416,7 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
             </div>
         `;
         document.body.appendChild(modal);
-        
+
         // Add styles if not already present
         if (!document.getElementById('delete-modal-styles')) {
             const style = document.createElement('style');
@@ -479,14 +479,14 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
         }
     };
 
-    window.closeDeleteModal = function() {
+    window.closeDeleteModal = function () {
         const modal = document.querySelector('.delete-modal-overlay');
         if (modal) modal.remove();
     };
 
-    window.confirmDelete = function(convId) {
+    window.confirmDelete = function (convId) {
         closeDeleteModal();
-        
+
         const btn = document.querySelector('.conversation-item[data-conv-id="' + convId + '"] .btn-delete-conv');
         if (btn) {
             btn.disabled = true;
@@ -500,33 +500,33 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
             },
             body: 'conversation_id=' + convId
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                const item = document.querySelector('.conversation-item[data-conv-id="' + convId + '"]');
-                if (item) {
-                    item.remove();
-                    // If this was the active chat, clear the chat area
-                    if (item.classList.contains('active')) {
-                        document.getElementById('chat-area').innerHTML = '<div class="empty-state"><p>Sélectionnez une conversation</p></div>';
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const item = document.querySelector('.conversation-item[data-conv-id="' + convId + '"]');
+                    if (item) {
+                        item.remove();
+                        // If this was the active chat, clear the chat area
+                        if (item.classList.contains('active')) {
+                            document.getElementById('chat-area').innerHTML = '<div class="empty-state"><p>Sélectionnez une conversation</p></div>';
+                        }
+                        updateBadges();
                     }
-                    updateBadges();
+                } else {
+                    alert('Erreur lors de la suppression : ' + (data.error || 'Erreur inconnue'));
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                    }
                 }
-            } else {
-                alert('Erreur lors de la suppression : ' + (data.error || 'Erreur inconnue'));
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Erreur réseau');
                 if (btn) {
                     btn.disabled = false;
                     btn.style.opacity = '1';
                 }
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Erreur réseau');
-            if (btn) {
-                btn.disabled = false;
-                btn.style.opacity = '1';
-            }
-        });
+            });
     };
 </script>
