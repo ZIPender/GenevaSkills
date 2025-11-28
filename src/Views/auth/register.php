@@ -18,8 +18,9 @@
                     <div class="form-group">
                         <label>Je suis :</label>
                         <div class="toggle-switch">
-                            <input type="radio" name="type" id="type-developer" value="developer" checked onchange="toggleFields()">
-                            <input type="radio" name="type" id="type-company" value="company" onchange="toggleFields()">
+                            <input type="radio" name="type" id="type-developer" value="developer"
+                                <?= (isset($old['type']) && $old['type'] === 'developer') || !isset($old['type']) ? 'checked' : '' ?> onchange="toggleFields()">
+                            <input type="radio" name="type" id="type-company" value="company" <?= isset($old['type']) && $old['type'] === 'company' ? 'checked' : '' ?> onchange="toggleFields()">
                             <div class="toggle-slider"></div>
                             <label for="type-developer" class="toggle-option">Développeur</label>
                             <label for="type-company" class="toggle-option">Entreprise</label>
@@ -29,40 +30,46 @@
                     <!-- Common Fields -->
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" name="email" id="email" class="form-control" required placeholder="votre@email.com">
+                        <input type="email" name="email" id="email" class="form-control" required
+                            placeholder="votre@email.com" value="<?= htmlspecialchars($old['email'] ?? '') ?>">
                     </div>
 
                     <div class="form-group">
                         <label for="password">Mot de passe</label>
                         <div class="password-wrapper">
-                            <input type="password" name="password" id="password" class="form-control" required placeholder="Min. 8 caractères">
+                            <input type="password" name="password" id="password" class="form-control" required
+                                placeholder="Min. 8 caractères">
                             <button type="button" class="password-toggle" onclick="togglePassword()">
                                 <span class="eye-icon" id="eye-icon">👁️</span>
                             </button>
                         </div>
-                        <small class="form-hint">Doit contenir majuscule, minuscule, chiffre et caractère spécial</small>
+                        <small class="form-hint">Doit contenir majuscule, minuscule, chiffre et caractère
+                            spécial</small>
                     </div>
 
                     <!-- Developer Fields -->
                     <div id="developer-fields" class="dynamic-fields">
                         <div class="form-group">
                             <label for="first_name">Prénom</label>
-                            <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Jean">
+                            <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Jean"
+                                value="<?= htmlspecialchars($old['first_name'] ?? '') ?>">
                         </div>
                         <div class="form-group">
                             <label for="last_name">Nom</label>
-                            <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Dupont">
+                            <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Dupont"
+                                value="<?= htmlspecialchars($old['last_name'] ?? '') ?>">
                         </div>
                         <div class="form-group">
                             <label for="experience_level">Niveau d'expérience</label>
                             <select name="experience_level" id="experience_level" class="form-control">
-                                <option value="junior">Junior</option>
-                                <option value="apprentice">Apprenti</option>
+                                <option value="junior" <?= (isset($old['experience_level']) && $old['experience_level'] === 'junior') ? 'selected' : '' ?>>Junior</option>
+                                <option value="apprentice" <?= (isset($old['experience_level']) && $old['experience_level'] === 'apprentice') ? 'selected' : '' ?>>Apprenti</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="bio">Bio</label>
-                            <textarea name="bio" id="bio" class="form-control" rows="3" placeholder="Parlez-nous de vous..."></textarea>
+                            <textarea name="bio" id="bio" class="form-control" rows="3"
+                                placeholder="Parlez-nous de vous..."><?= htmlspecialchars($old['bio'] ?? '') ?></textarea>
                         </div>
                     </div>
 
@@ -70,15 +77,19 @@
                     <div id="company-fields" class="dynamic-fields" style="display: none;">
                         <div class="form-group">
                             <label for="name">Nom de l'entreprise</label>
-                            <input type="text" name="name" id="name" class="form-control" placeholder="Votre entreprise">
+                            <input type="text" name="name" id="name" class="form-control" placeholder="Votre entreprise"
+                                value="<?= htmlspecialchars($old['name'] ?? '') ?>">
                         </div>
                         <div class="form-group">
                             <label for="website">Site web</label>
-                            <input type="url" name="website" id="website" class="form-control" placeholder="https://exemple.com">
+                            <input type="url" name="website" id="website" class="form-control"
+                                placeholder="https://exemple.com"
+                                value="<?= htmlspecialchars($old['website'] ?? '') ?>">
                         </div>
                         <div class="form-group">
                             <label for="description">Description</label>
-                            <textarea name="description" id="description" class="form-control" rows="3" placeholder="Décrivez votre entreprise..."></textarea>
+                            <textarea name="description" id="description" class="form-control" rows="3"
+                                placeholder="Décrivez votre entreprise..."><?= htmlspecialchars($old['description'] ?? '') ?></textarea>
                         </div>
                     </div>
 
@@ -104,7 +115,7 @@
             document.getElementById('first_name').required = true;
             document.getElementById('last_name').required = true;
             document.getElementById('name').required = false;
-            
+
             // Animate in
             devFields.style.animation = 'fadeInFields 0.4s ease-out';
         } else {
@@ -114,7 +125,7 @@
             document.getElementById('first_name').required = false;
             document.getElementById('last_name').required = false;
             document.getElementById('name').required = true;
-            
+
             // Animate in
             compFields.style.animation = 'fadeInFields 0.4s ease-out';
         }
@@ -123,7 +134,7 @@
     function togglePassword() {
         const passwordInput = document.getElementById('password');
         const eyeIcon = document.getElementById('eye-icon');
-        
+
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
             eyeIcon.textContent = '👁️‍🗨️';
@@ -181,6 +192,7 @@
             opacity: 0;
             transform: translateY(30px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -192,6 +204,7 @@
             opacity: 0;
             transform: translateY(10px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -280,7 +293,7 @@
         z-index: 1;
     }
 
-    .toggle-switch input[type="radio"]:checked#type-company ~ .toggle-slider {
+    .toggle-switch input[type="radio"]:checked#type-company~.toggle-slider {
         transform: translateX(100%);
     }
 
@@ -295,11 +308,11 @@
         color: var(--text-primary);
     }
 
-    .toggle-switch input[type="radio"]#type-developer:checked ~ label[for="type-developer"] {
+    .toggle-switch input[type="radio"]#type-developer:checked~label[for="type-developer"] {
         color: white;
     }
 
-    .toggle-switch input[type="radio"]#type-company:checked ~ label[for="type-company"] {
+    .toggle-switch input[type="radio"]#type-company:checked~label[for="type-company"] {
         color: white;
     }
 
@@ -377,6 +390,7 @@
             opacity: 0;
             transform: translateY(-10px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);

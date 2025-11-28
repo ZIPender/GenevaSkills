@@ -18,8 +18,9 @@
                     <div class="form-group">
                         <label>Je suis :</label>
                         <div class="toggle-switch">
-                            <input type="radio" name="type" id="type-developer" value="developer" checked>
-                            <input type="radio" name="type" id="type-company" value="company">
+                            <input type="radio" name="type" id="type-developer" value="developer"
+                                <?= (isset($old['type']) && $old['type'] === 'developer') || !isset($old['type']) ? 'checked' : '' ?>>
+                            <input type="radio" name="type" id="type-company" value="company" <?= isset($old['type']) && $old['type'] === 'company' ? 'checked' : '' ?>>
                             <div class="toggle-slider"></div>
                             <label for="type-developer" class="toggle-option">Développeur</label>
                             <label for="type-company" class="toggle-option">Entreprise</label>
@@ -29,7 +30,7 @@
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" name="email" id="email" class="form-control" required
-                            placeholder="votre@email.com">
+                            placeholder="votre@email.com" value="<?= htmlspecialchars($old['email'] ?? '') ?>">
                     </div>
 
                     <div class="form-group">

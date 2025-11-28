@@ -23,7 +23,7 @@
             <div class="nav-container">
                 <a href="/" class="logo">
                     <img src="<?= $basePath ?>/assets/images/logo.png" alt="GenevaSkills Logo"
-                        style="height: 330px; width: auto;">
+                        style="height: 60px; width: auto;">
                 </a>
 
                 <ul class="nav-center">

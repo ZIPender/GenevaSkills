@@ -54,7 +54,11 @@ class AuthController extends Controller
             }
 
             // Login failed
-            $this->view('auth/login', ['error' => 'Email ou mot de passe incorrect.', 'title' => 'Connexion']);
+            $this->view('auth/login', [
+                'error' => 'Email ou mot de passe incorrect.',
+                'title' => 'Connexion',
+                'old' => $_POST
+            ]);
         }
     }
 
@@ -74,13 +78,23 @@ class AuthController extends Controller
 
             // Validation
             if (!$email) {
-                $this->view('auth/register', ['error' => 'Email invalide.', 'title' => 'Inscription']);
+                $this->view('auth/register', [
+                    'error' => 'Email invalide.',
+                    'title' => 'Inscription',
+                    'old' => $_POST
+                ]);
                 return;
             }
 
             if (!$this->validatePassword($password)) {
-                $this->view('auth/register', ['error' => 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.', 'title' => 'Inscription']);
-                return;
+                if (!$this->validatePassword($password)) {
+                    $this->view('auth/register', [
+                        'error' => 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.',
+                        'title' => 'Inscription',
+                        'old' => $_POST
+                    ]);
+                    return;
+                }
             }
 
             if ($type === 'developer') {
@@ -93,7 +107,11 @@ class AuthController extends Controller
                 $developer->experience_level = $_POST['experience_level'];
 
                 if ($developer->emailExists($email)) {
-                    $this->view('auth/register', ['error' => 'Cet email est déjà utilisé.', 'title' => 'Inscription']);
+                    $this->view('auth/register', [
+                        'error' => 'Cet email est déjà utilisé.',
+                        'title' => 'Inscription',
+                        'old' => $_POST
+                    ]);
                     return;
                 }
 
@@ -109,7 +127,11 @@ class AuthController extends Controller
                 $company->website = $_POST['website'];
 
                 if ($company->emailExists($email)) {
-                    $this->view('auth/register', ['error' => 'Cet email est déjà utilisé.', 'title' => 'Inscription']);
+                    $this->view('auth/register', [
+                        'error' => 'Cet email est déjà utilisé.',
+                        'title' => 'Inscription',
+                        'old' => $_POST
+                    ]);
                     return;
                 }
 
@@ -118,7 +140,11 @@ class AuthController extends Controller
                 }
             }
 
-            $this->view('auth/register', ['error' => 'Une erreur est survenue.', 'title' => 'Inscription']);
+            $this->view('auth/register', [
+                'error' => 'Une erreur est survenue.',
+                'title' => 'Inscription',
+                'old' => $_POST
+            ]);
         }
     }
 
