@@ -229,6 +229,7 @@ header {
 .btn-primary:hover {
     background: var(--primary-hover);
     transform: translateY(-1px);
+    color: white;
 }
 
 .btn-secondary {
@@ -651,18 +652,6 @@ label {
 
 .custom-options {
     position: absolute;
-    display: none;
-    top: 100%;
-    left: 0;
-    right: 0;
-    border: 2px solid var(--border);
-    border-top: none;
-    border-bottom-left-radius: var(--radius);
-    border-bottom-right-radius: var(--radius);
-    background: var(--bg-primary);
-    z-index: 100;
-    max-height: 250px;
-    overflow-y: auto;
     box-shadow: var(--shadow-lg);
 }
 
