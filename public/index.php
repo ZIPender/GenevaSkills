@@ -56,7 +56,7 @@ $router->add('GET', '/messages/poll', 'MessageController', 'poll');
 
 // Projects
 $router->add('GET', '/projects', 'ProjectController', 'index');
-$router->add('GET', '/projects/my-projects', 'ProjectController', 'myProjects');
+
 $router->add('GET', '/projects/show', 'ProjectController', 'show');
 $router->add('GET', '/projects/create', 'ProjectController', 'create');
 $router->add('POST', '/projects/store', 'ProjectController', 'store');

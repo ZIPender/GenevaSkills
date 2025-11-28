@@ -68,7 +68,7 @@
 
             <div style="display: flex; gap: 1rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);">
                 <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">Mettre à jour</button>
-                <a href="/projects/my-projects" class="btn btn-secondary">Annuler</a>
+                <a href="/profile/me?tab=projects" class="btn btn-secondary">Annuler</a>
             </div>
         </form>
     </div>
