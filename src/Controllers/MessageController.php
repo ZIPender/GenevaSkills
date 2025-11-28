@@ -280,4 +280,53 @@ class MessageController extends Controller
         echo json_encode(['error' => 'Failed to update acceptance']);
         exit;
     }
+
+    public function delete()
+    {
+        if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('HTTP/1.1 401 Unauthorized');
+            echo json_encode(['error' => 'Unauthorized']);
+            exit;
+        }
+
+        $conversation_id = $_POST['conversation_id'] ?? null;
+        if (!$conversation_id) {
+            header('HTTP/1.1 400 Bad Request');
+            echo json_encode(['error' => 'Missing conversation ID']);
+            exit;
+        }
+
+        $conversationModel = new Conversation();
+        $conversation = $conversationModel->getById($conversation_id);
+
+        if (!$conversation) {
+            header('HTTP/1.1 404 Not Found');
+            echo json_encode(['error' => 'Conversation not found']);
+            exit;
+        }
+
+        // Verify access (must be a participant)
+        $canAccess = false;
+        if ($_SESSION['user_type'] === 'developer' && $conversation['developer_id'] == $_SESSION['user_id']) {
+            $canAccess = true;
+        } elseif ($_SESSION['user_type'] === 'company' && $conversation['company_id'] == $_SESSION['user_id']) {
+            $canAccess = true;
+        }
+
+        if (!$canAccess) {
+            header('HTTP/1.1 403 Forbidden');
+            echo json_encode(['error' => 'Forbidden']);
+            exit;
+        }
+
+        if ($conversationModel->delete($conversation_id)) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true]);
+            exit;
+        }
+
+        header('HTTP/1.1 500 Internal Server Error');
+        echo json_encode(['error' => 'Failed to delete conversation']);
+        exit;
+    }
 }

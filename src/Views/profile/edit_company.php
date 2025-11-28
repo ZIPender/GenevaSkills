@@ -22,6 +22,6 @@
                 rows="5"><?= htmlspecialchars($user['description']) ?></textarea>
         </div>
         <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
-        <a href="/dashboard" class="btn">Annuler</a>
+        <a href="/profile/me" class="btn">Annuler</a>
     </form>
 </div>

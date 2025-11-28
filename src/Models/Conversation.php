@@ -54,13 +54,17 @@ class Conversation
                    WHERE m.conversation_id = c.id 
                    AND m.is_read = FALSE 
                    AND NOT (m.sender_id = :user_id AND m.sender_type = :user_type)
-                  ) as unread_count
+                  ) as unread_count,
+                  COALESCE(
+                      (SELECT MAX(created_at) FROM messages m WHERE m.conversation_id = c.id),
+                      c.created_at
+                  ) as last_activity
                   FROM " . $this->table . " c
                   JOIN projects p ON c.project_id = p.id
                   JOIN developers d ON c.developer_id = d.id
                   JOIN companies comp ON c.company_id = comp.id
                   WHERE c." . $column . " = :user_id
-                  ORDER BY c.created_at DESC";
+                  ORDER BY last_activity DESC";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':user_id', $user_id);
@@ -118,6 +122,21 @@ class Conversation
     {
         $column = ($type === 'developer') ? 'dev_accepted' : 'company_accepted';
         $query = "UPDATE " . $this->table . " SET " . $column . " = 1 WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
+    public function delete($id)
+    {
+        // Delete messages first (foreign key constraint usually handles this, but good to be explicit or if no cascade)
+        $queryMessages = "DELETE FROM messages WHERE conversation_id = :id";
+        $stmtMessages = $this->conn->prepare($queryMessages);
+        $stmtMessages->bindParam(':id', $id);
+        $stmtMessages->execute();
+
+        // Delete conversation
+        $query = "DELETE FROM " . $this->table . " WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $id);
         return $stmt->execute();

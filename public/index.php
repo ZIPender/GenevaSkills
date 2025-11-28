@@ -37,8 +37,6 @@ $router->add('GET', '/register', 'AuthController', 'register');
 $router->add('POST', '/register', 'AuthController', 'store');
 $router->add('GET', '/logout', 'AuthController', 'logout');
 
-// Dashboard
-$router->add('GET', '/dashboard', 'DashboardController', 'index');
 
 // Profile
 $router->add('GET', '/profile/me', 'ProfileController', 'myProfile');
@@ -51,6 +49,8 @@ $router->add('GET', '/messages/create', 'MessageController', 'create');
 $router->add('GET', '/messages/show', 'MessageController', 'show');
 $router->add('POST', '/messages/store', 'MessageController', 'store');
 $router->add('POST', '/messages/mark-read', 'MessageController', 'markRead');
+$router->add('POST', '/messages/accept', 'MessageController', 'accept');
+$router->add('POST', '/messages/delete', 'MessageController', 'delete');
 
 // Projects
 $router->add('GET', '/projects', 'ProjectController', 'index');

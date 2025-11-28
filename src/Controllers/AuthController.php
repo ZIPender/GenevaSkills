@@ -35,7 +35,7 @@ class AuthController extends Controller
                     $_SESSION['user_type'] = 'developer';
                     $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
                     file_put_contents(__DIR__ . '/../../public/debug_log.txt', "Dev Login Success: ID " . $user['id'] . "\n", FILE_APPEND);
-                    $this->redirect('/dashboard');
+                    $this->redirect('/profile/me');
                 }
             } else {
                 $company = new Company();
@@ -47,7 +47,7 @@ class AuthController extends Controller
                     file_put_contents(__DIR__ . '/../../public/debug_log.txt', "Company Login Success: ID " . $user['id'] . "\n", FILE_APPEND);
                     // Explicitly write session
                     session_write_close();
-                    $this->redirect('/dashboard');
+                    $this->redirect('/profile/me');
                 } else {
                     file_put_contents(__DIR__ . '/../../public/debug_log.txt', "Company Login Failed\n", FILE_APPEND);
                 }
