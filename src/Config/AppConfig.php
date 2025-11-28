@@ -22,10 +22,10 @@ class AppConfig
         // Detect Local Environment
         // You can use a file existence check, or an environment variable
         if (file_exists(dirname(__DIR__, 2) . '/.env.local') || $_SERVER['SERVER_NAME'] === 'localhost' || $_SERVER['SERVER_NAME'] === '127.0.0.1' || DIRECTORY_SEPARATOR === '\\') {
-            $this->config['db_host'] = 'localhost';
-            $this->config['db_name'] = 'genevaskills'; // Adjust if your local DB name is different
-            $this->config['db_user'] = 'root';
-            $this->config['db_pass'] = '';
+            // $this->config['db_host'] = 'localhost';
+            // $this->config['db_name'] = 'genevaskills'; // Adjust if your local DB name is different
+            // $this->config['db_user'] = 'root';
+            // $this->config['db_pass'] = '';
             $this->config['ws_url'] = 'ws://localhost:8000';
             $this->config['env'] = 'local';
         }
