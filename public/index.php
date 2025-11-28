@@ -50,6 +50,7 @@ $router->add('GET', '/messages/show', 'MessageController', 'show');
 $router->add('POST', '/messages/store', 'MessageController', 'store');
 $router->add('POST', '/messages/mark-read', 'MessageController', 'markRead');
 $router->add('POST', '/messages/accept', 'MessageController', 'accept');
+$router->add('POST', '/messages/decline', 'MessageController', 'decline');
 $router->add('POST', '/messages/delete', 'MessageController', 'delete');
 $router->add('GET', '/messages/poll', 'MessageController', 'poll');
 

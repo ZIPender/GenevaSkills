@@ -247,9 +247,9 @@ header {
     color: white;
 }
 
-.btn-sm {
-    padding: 0.25rem 0.75rem;
-    font-size: 0.875rem;
+.btn-danger:hover {
+    background: #d63654;
+    color: white;
 }
 
 .btn-xs {

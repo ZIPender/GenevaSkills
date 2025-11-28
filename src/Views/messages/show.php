@@ -24,41 +24,48 @@
 
     <!-- Invitation UI -->
     <?php if (isset($conversation['status']) && $conversation['status'] === 'pending'): ?>
-        <div class="chat-messages" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; text-align: center;">
+        <div class="chat-messages"
+            style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; text-align: center;">
             <div class="card" style="max-width: 500px; width: 100%; padding: 2rem; box-shadow: var(--shadow-lg);">
                 <h3 style="margin-bottom: 1rem;">Invitation au projet</h3>
                 <p style="color: var(--text-secondary); margin-bottom: 2rem;">
-                    <strong><?= htmlspecialchars($conversation['company_name'] ?? 'Une entreprise') ?></strong> 
+                    <strong><?= htmlspecialchars($conversation['company_name'] ?? 'Une entreprise') ?></strong>
                     vous invite à rejoindre le projet :
                 </p>
-                
-                <a href="/projects/show?id=<?= $conversation['project_id'] ?>" target="_blank" class="project-preview-card" style="display: block; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 2rem; text-decoration: none; color: inherit; background: var(--bg-secondary); transition: all 0.2s;">
-                    <h4 style="margin: 0 0 0.5rem 0; color: var(--primary);"><?= htmlspecialchars($conversation['project_title']) ?></h4>
-                    <span style="font-size: 0.9rem; color: var(--text-secondary);">Cliquez pour voir les détails <span style="font-size: 1.2em;">↗</span></span>
+
+                <a href="/projects/show?id=<?= $conversation['project_id'] ?>" target="_blank" class="project-preview-card"
+                    style="display: block; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 2rem; text-decoration: none; color: inherit; background: var(--bg-secondary); transition: all 0.2s;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: var(--primary);">
+                        <?= htmlspecialchars($conversation['project_title']) ?>
+                    </h4>
+                    <span style="font-size: 0.9rem; color: var(--text-secondary);">Cliquez pour voir les détails <span
+                            style="font-size: 1.2em;">↗</span></span>
                 </a>
 
                 <?php if ($_SESSION['user_type'] === 'developer'): ?>
                     <div style="display: flex; gap: 1rem; justify-content: center;">
-                        <button id="btn-decline-invitation" class="btn btn-secondary btn-danger">Refuser</button>
+                        <button id="btn-decline-invitation" class="btn btn-danger">Refuser</button>
                         <button id="btn-accept-invitation" class="btn btn-primary btn-success">Accepter l'invitation</button>
                     </div>
                 <?php else: ?>
-                    <div style="padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius); color: var(--text-secondary);">
+                    <div
+                        style="padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius); color: var(--text-secondary);">
                         <p style="margin: 0;">Invitation envoyée. En attente de la réponse du développeur...</p>
                     </div>
                 <?php endif; ?>
             </div>
         </div>
-    
-    <!-- Declined UI -->
+
+        <!-- Declined UI -->
     <?php elseif (isset($conversation['status']) && $conversation['status'] === 'declined'): ?>
-        <div class="chat-messages" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; text-align: center;">
+        <div class="chat-messages"
+            style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; text-align: center;">
             <div style="color: var(--text-secondary);">
                 <p>Cette invitation a été refusée.</p>
             </div>
         </div>
 
-    <!-- Active Chat UI -->
+        <!-- Active Chat UI -->
     <?php else: ?>
         <div class="chat-messages" id="chat-messages-<?= $conversation['id'] ?>">
             <?php if (empty($messages)): ?>
@@ -85,22 +92,32 @@
     <script>
         (function () {
             const convId = <?= $conversation['id'] ?>;
-            
+
             // Invitation Logic
             const btnAccept = document.getElementById('btn-accept-invitation');
             const btnDecline = document.getElementById('btn-decline-invitation');
 
             if (btnAccept) {
-                btnAccept.addEventListener('click', function() {
-                    if (!confirm('Accepter cette invitation ?')) return;
-                    handleInvitation('accept');
+                btnAccept.addEventListener('click', function () {
+                    showConfirmationModal(
+                        'Accepter l\'invitation',
+                        'Êtes-vous sûr de vouloir rejoindre ce projet ?',
+                        'Accepter',
+                        'btn-primary',
+                        () => handleInvitation('accept')
+                    );
                 });
             }
 
             if (btnDecline) {
-                btnDecline.addEventListener('click', function() {
-                    if (!confirm('Refuser cette invitation ?')) return;
-                    handleInvitation('decline');
+                btnDecline.addEventListener('click', function () {
+                    showConfirmationModal(
+                        'Refuser l\'invitation',
+                        'Êtes-vous sûr de vouloir refuser cette invitation ?',
+                        'Refuser',
+                        'btn-danger',
+                        () => handleInvitation('decline')
+                    );
                 });
             }
 
@@ -113,24 +130,24 @@
                     headers: { 'X-Requested-With': 'XMLHttpRequest' },
                     body: formData
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Erreur: ' + (data.error || 'Erreur inconnue'));
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert('Erreur de connexion');
-                });
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('Erreur de connexion');
+                    });
             }
 
             // Chat Logic (Only if chat exists)
             const chatMessages = document.getElementById('chat-messages-' + convId);
             const form = document.querySelector('.message-form[data-conversation-id="' + convId + '"]');
-            
+
             if (chatMessages && form) {
                 let lastMessageId = <?= !empty($messages) ? end($messages)['id'] : 0 ?>;
                 let pollInterval;
@@ -194,30 +211,118 @@
                         headers: { 'X-Requested-With': 'XMLHttpRequest' },
                         body: formData
                     })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            input.value = '';
-                            setTimeout(() => {
-                                fetch('/messages/poll?conversation_id=' + convId + '&after_id=' + lastMessageId)
-                                    .then(res => res.json())
-                                    .then(data => {
-                                        if (data && data.length > 0) {
-                                            data.forEach(msg => {
-                                                appendMessage(msg);
-                                                lastMessageId = Math.max(lastMessageId, msg.id);
-                                            });
-                                        }
-                                    });
-                            }, 100);
-                        } else {
-                            alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                input.value = '';
+                                setTimeout(() => {
+                                    fetch('/messages/poll?conversation_id=' + convId + '&after_id=' + lastMessageId)
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            if (data && data.length > 0) {
+                                                data.forEach(msg => {
+                                                    appendMessage(msg);
+                                                    lastMessageId = Math.max(lastMessageId, msg.id);
+                                                });
+                                            }
+                                        });
+                                }, 100);
+                            } else {
+                                alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('Erreur de connexion');
+                        });
+                });
+            }
+
+            function showConfirmationModal(title, message, confirmText, confirmClass, onConfirm) {
+                // Create modal elements
+                const overlay = document.createElement('div');
+                overlay.className = 'custom-modal-overlay';
+
+                const modal = document.createElement('div');
+                modal.className = 'custom-modal';
+
+                modal.innerHTML = `
+                    <h3>${escapeHtml(title)}</h3>
+                    <p>${escapeHtml(message)}</p>
+                    <div class="custom-modal-actions">
+                        <button class="btn btn-secondary btn-cancel">Annuler</button>
+                        <button class="btn ${confirmClass} btn-confirm">${escapeHtml(confirmText)}</button>
+                    </div>
+                `;
+
+                overlay.appendChild(modal);
+                document.body.appendChild(overlay);
+
+                // Add styles if not present
+                if (!document.getElementById('custom-modal-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'custom-modal-styles';
+                    style.textContent = `
+                        .custom-modal-overlay {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: rgba(0, 0, 0, 0.5);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 10000;
+                            animation: fadeIn 0.2s ease;
                         }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert('Erreur de connexion');
-                    });
+                        .custom-modal {
+                            background: var(--bg-primary, #fff);
+                            padding: 2rem;
+                            border-radius: 12px;
+                            max-width: 400px;
+                            width: 90%;
+                            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                            animation: slideUp 0.2s ease;
+                            text-align: center;
+                        }
+                        .custom-modal h3 {
+                            margin: 0 0 1rem 0;
+                            color: var(--text-primary);
+                        }
+                        .custom-modal p {
+                            margin: 0 0 2rem 0;
+                            color: var(--text-secondary);
+                            line-height: 1.5;
+                        }
+                        .custom-modal-actions {
+                            display: flex;
+                            gap: 1rem;
+                            justify-content: center;
+                        }
+                        @keyframes fadeIn {
+                            from { opacity: 0; }
+                            to { opacity: 1; }
+                        }
+                        @keyframes slideUp {
+                            from { transform: translateY(20px); opacity: 0; }
+                            to { transform: translateY(0); opacity: 1; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+
+                // Event listeners
+                const close = () => overlay.remove();
+
+                overlay.querySelector('.btn-cancel').addEventListener('click', close);
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) close();
+                });
+
+                overlay.querySelector('.btn-confirm').addEventListener('click', () => {
+                    onConfirm();
+                    close();
                 });
             }
 
