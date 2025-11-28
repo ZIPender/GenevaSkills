@@ -86,4 +86,16 @@ class Message
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int) $result['count'];
     }
+    public function getNewMessages($conversation_id, $after_id)
+    {
+        $query = "SELECT * FROM " . $this->table . " 
+                  WHERE conversation_id = :conversation_id 
+                  AND id > :after_id 
+                  ORDER BY created_at ASC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':conversation_id', $conversation_id);
+        $stmt->bindParam(':after_id', $after_id);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

@@ -1,5 +1,6 @@
 <?php
 use App\Models\Conversation;
+use App\Config\AppConfig;
 
 $conversationModel = new Conversation();
 $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
@@ -157,87 +158,9 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
 </div>
 
 <script>
-    // Handle temp project for new contact  
-    const tempProjectData = <?= isset($tempProject) && $tempProject ? json_encode($tempProject) : 'null' ?>;
-    const userId = <?= $user['id'] ?>;
-    const userType = '<?= $type ?>';
-    let globalWs = null;
-
-    // Global WebSocket for conversation list updates and notifications
-    function connectGlobalWebSocket() {
-        globalWs = new WebSocket(`ws://localhost:8000?user_id=${userId}&user_type=${userType}`);
-
-        globalWs.onopen = function () {
-            console.log('Global WebSocket connected');
-        };
-
-        globalWs.onmessage = function (e) {
-            const data = JSON.parse(e.data);
-
-            if (data.type === 'new_message') {
-                handleGlobalNewMessage(data);
-            } else if (data.type === 'project_accepted') {
-                // Handle project acceptance if needed
-            }
-        };
-
-        globalWs.onclose = function () {
-            console.log('Global WebSocket disconnected. Reconnecting...');
-            setTimeout(connectGlobalWebSocket, 3000);
-        };
-
-        globalWs.onerror = function (err) {
-            console.error('Global WebSocket error:', err);
-            globalWs.close();
-        };
-    }
-
-    function handleGlobalNewMessage(data) {
-        const convId = data.conversation_id;
-        const isFromMe = (data.sender_id == userId && data.sender_type === userType);
-
-        // Update conversation list order
-        const conversationsList = document.querySelector('.conversations-list');
-        if (conversationsList) {
-            const convItem = document.querySelector('.conversation-item[data-conv-id="' + convId + '"]');
-
-            if (convItem) {
-                // Move conversation to top
-                const firstConv = conversationsList.querySelector('.conversation-item');
-                if (firstConv && firstConv !== convItem) {
-                    conversationsList.insertBefore(convItem, firstConv);
-
-                    // Add a subtle highlight animation
-                    convItem.style.transition = 'background-color 0.3s';
-                    convItem.style.backgroundColor = 'var(--bg-secondary, #f5f5f5)';
-                    setTimeout(() => {
-                        convItem.style.backgroundColor = '';
-                    }, 1000);
-                }
-
-                // Update unread count if message is from other person
-                if (!isFromMe) {
-                    let badge = convItem.querySelector('.badge-count');
-                    if (badge) {
-                        let count = parseInt(badge.textContent);
-                        count++;
-                        badge.textContent = count > 99 ? '99+' : count;
-                    } else {
-                        // Create badge if it doesn't exist
-                        const actionsDiv = convItem.querySelector('.conv-actions');
-                        badge = document.createElement('span');
-                        badge.className = 'badge-count';
-                        badge.textContent = '1';
-                        actionsDiv.insertBefore(badge, actionsDiv.querySelector('.btn-delete-conv'));
-                    }
-                    updateBadges();
-                }
-            }
-        }
-    }
-
-    // Connect on page load
-    connectGlobalWebSocket();
+    const userId = <?= $_SESSION['user_id'] ?>;
+    const userType = '<?= $_SESSION['user_type'] ?>';
+    const tempProjectData = <?= isset($tempProject) ? json_encode($tempProject) : 'null' ?>;
 
     document.querySelectorAll('.sidebar-item').forEach(link => {
         link.addEventListener('click', function (e) {
@@ -257,6 +180,88 @@ $totalUnread = $conversationModel->getTotalUnreadCount($user['id'], $type);
         document.getElementById('section-messages').classList.add('active');
         setTimeout(() => openTempChat(tempProjectData), 100);
     }
+
+    // Global Polling for unread counts and list order
+    function startGlobalPolling() {
+        setInterval(() => {
+            fetch('/messages/poll')
+                .then(res => res.json())
+                .then(data => {
+                    if (Array.isArray(data)) {
+                        updateConversationList(data);
+                    }
+                })
+                .catch(err => console.error('Global poll error:', err));
+        }, 5000); // Poll every 5 seconds
+    }
+
+    function updateConversationList(conversations) {
+        const list = document.querySelector('.conversations-list');
+        if (!list) return;
+
+        // Remove empty state if we have conversations
+        const emptyState = list.querySelector('.empty-state');
+        if (conversations.length > 0 && emptyState) {
+            emptyState.remove();
+        }
+
+        conversations.forEach(conv => {
+            let item = list.querySelector(`.conversation-item[data-conv-id="${conv.id}"]`);
+            
+            if (item) {
+                // Update badge
+                const actionsDiv = item.querySelector('.conv-actions');
+                let badge = item.querySelector('.badge-count');
+                
+                if (conv.unread_count > 0) {
+                    if (badge) {
+                        badge.textContent = conv.unread_count > 99 ? '99+' : conv.unread_count;
+                    } else {
+                        badge = document.createElement('span');
+                        badge.className = 'badge-count';
+                        badge.textContent = conv.unread_count > 99 ? '99+' : conv.unread_count;
+                        actionsDiv.insertBefore(badge, actionsDiv.querySelector('.btn-delete-conv'));
+                    }
+                } else if (badge) {
+                    badge.remove();
+                }
+
+                // Move to top if needed (simple reordering based on server order)
+                if (list.firstElementChild !== item) {
+                     list.prepend(item);
+                }
+
+            } else {
+                // Create new item
+                const div = document.createElement('div');
+                div.className = 'conversation-item';
+                div.dataset.convId = conv.id;
+                div.onclick = () => openChat(conv.id);
+                
+                const otherName = (userType === 'developer') ? conv.company_name : (conv.dev_first_name + ' ' + conv.dev_last_name);
+                
+                div.innerHTML = `
+                    <div class="conv-info">
+                        <h4 class="conv-title">${escapeHtml(conv.project_title)}</h4>
+                        <p class="conv-with">${escapeHtml(otherName)}</p>
+                    </div>
+                    <div class="conv-actions" style="display: flex; align-items: center; gap: 10px;">
+                        ${conv.unread_count > 0 ? `<span class="badge-count">${conv.unread_count > 99 ? '99+' : conv.unread_count}</span>` : ''}
+                        <button class="btn-delete-conv" onclick="deleteConversation(event, ${conv.id})"
+                            title="Supprimer la conversation"
+                            style="background: none; border: none; cursor: pointer; color: #999; font-size: 1.2rem; padding: 0 5px;">
+                            &times;
+                        </button>
+                    </div>
+                `;
+                list.prepend(div);
+            }
+        });
+        
+        updateBadges();
+    }
+    
+    startGlobalPolling();
 
     window.openChat = function (convId) {
         const chatArea = document.getElementById('chat-area');

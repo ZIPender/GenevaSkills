@@ -1,11 +1,15 @@
 <?php
 
-require_once __DIR__ . '/../src/autoload.php';
+// Adjust path to autoload.php for root deployment
+// If index.php is in root, vendor is in root too.
+require_once __DIR__ . '/vendor/autoload.php';
 
 use App\Router;
 
-// Configure session path to local tmp directory
-$sessionPath = __DIR__ . '/../tmp';
+// Configure session path
+// If in root, tmp might be in root too or one level up.
+// Let's assume tmp is in root for simplicity or use system temp.
+$sessionPath = __DIR__ . '/tmp';
 if (!file_exists($sessionPath)) {
     mkdir($sessionPath, 0777, true);
 }
@@ -18,7 +22,7 @@ session_set_cookie_params([
     'lifetime' => 0,
     'path' => '/',
     'domain' => '',
-    'secure' => false,
+    'secure' => true, // Force secure in production
     'httponly' => true,
     'samesite' => 'Lax'
 ]);
@@ -51,7 +55,7 @@ $router->add('POST', '/messages/store', 'MessageController', 'store');
 $router->add('POST', '/messages/mark-read', 'MessageController', 'markRead');
 $router->add('POST', '/messages/accept', 'MessageController', 'accept');
 $router->add('POST', '/messages/delete', 'MessageController', 'delete');
-$router->add('GET', '/messages/poll', 'MessageController', 'poll');
+$router->add('GET', '/messages/poll', 'MessageController', 'poll'); // New polling route
 
 // Projects
 $router->add('GET', '/projects', 'ProjectController', 'index');

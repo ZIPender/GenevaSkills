@@ -76,22 +76,26 @@ class MessageController extends Controller
         $messageModel = new Message();
         $messages = $messageModel->getByConversation($conversation_id);
 
-        $this->view('messages/show', [
+        $data = [
             'conversation' => $conversation,
             'messages' => $messages,
             'title' => 'Messagerie'
-        ]);
+        ];
+
+        if ($this->isAjax()) {
+            extract($data);
+            require __DIR__ . '/../Views/messages/show.php';
+        } else {
+            $this->view('messages/show', $data);
+        }
     }
 
     public function store()
     {
         $logFile = __DIR__ . '/../../debug_log.txt';
-        file_put_contents($logFile, "MessageController::store called at " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-        file_put_contents($logFile, "Session: " . print_r($_SESSION, true) . "\n", FILE_APPEND);
-        file_put_contents($logFile, "POST: " . print_r($_POST, true) . "\n", FILE_APPEND);
+        // file_put_contents($logFile, "MessageController::store called at " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
         if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-            file_put_contents($logFile, "Unauthorized access attempt\n", FILE_APPEND);
             if ($this->isAjax()) {
                 header('HTTP/1.1 401 Unauthorized');
                 echo json_encode(['error' => 'Unauthorized']);
@@ -154,7 +158,6 @@ class MessageController extends Controller
         }
 
         if (empty($content) || empty($conversation_id)) {
-            file_put_contents($logFile, "Missing content or conversation ID\n", FILE_APPEND);
             if ($this->isAjax()) {
                 header('HTTP/1.1 400 Bad Request');
                 echo json_encode(['error' => 'Missing content or conversation ID']);
@@ -170,7 +173,6 @@ class MessageController extends Controller
         $message->content = $content;
 
         if ($message->create()) {
-            file_put_contents($logFile, "Message created successfully\n", FILE_APPEND);
             if ($this->isAjax()) {
                 header('Content-Type: application/json');
                 echo json_encode(['success' => true, 'conversation_id' => $conversation_id]);
@@ -178,7 +180,6 @@ class MessageController extends Controller
             }
             $this->redirect('/messages/show?id=' . $conversation_id);
         } else {
-            file_put_contents($logFile, "Failed to create message in DB\n", FILE_APPEND);
             if ($this->isAjax()) {
                 header('HTTP/1.1 500 Internal Server Error');
                 echo json_encode(['error' => 'Failed to create message']);
@@ -328,5 +329,94 @@ class MessageController extends Controller
         header('HTTP/1.1 500 Internal Server Error');
         echo json_encode(['error' => 'Failed to delete conversation']);
         exit;
+    }
+
+    public function poll()
+    {
+        // Suppress errors to prevent JSON corruption
+        error_reporting(0);
+        ini_set('display_errors', 0);
+
+        if (!isset($_SESSION['user_id'])) {
+            header('HTTP/1.1 401 Unauthorized');
+            exit;
+        }
+
+        try {
+            $conversation_id = $_GET['conversation_id'] ?? null;
+            $after_id = $_GET['after_id'] ?? 0;
+
+            if (!$conversation_id) {
+                // Global poll: Return updated conversation list with unread counts
+                $conversationModel = new Conversation();
+                $conversations = $conversationModel->getByUser($_SESSION['user_id'], $_SESSION['user_type']);
+
+                // Format for JSON response
+                $response = array_map(function ($conv) {
+                    return [
+                        'id' => $conv['id'],
+                        'unread_count' => $conv['unread_count'],
+                        'last_message_at' => $conv['last_message_at'],
+                        'project_title' => $conv['project_title'],
+                        'company_name' => $conv['company_name'],
+                        'dev_first_name' => $conv['dev_first_name'],
+                        'dev_last_name' => $conv['dev_last_name']
+                    ];
+                }, $conversations);
+
+                // Clear any previous output
+                if (ob_get_length())
+                    ob_clean();
+
+                header('Content-Type: application/json');
+                echo json_encode($response);
+                exit;
+            }
+
+            // Specific conversation poll
+            $db = (new \App\Config\Database())->getConnection();
+            $stmt = $db->prepare("
+                SELECT m.*, 
+                       d.first_name as sender_first_name, d.last_name as sender_last_name,
+                       c.name as sender_company_name
+                FROM messages m
+                LEFT JOIN developers d ON m.sender_id = d.id AND m.sender_type = 'developer'
+                LEFT JOIN companies c ON m.sender_id = c.id AND m.sender_type = 'company'
+                WHERE m.conversation_id = ? AND m.id > ?
+                ORDER BY m.created_at ASC
+            ");
+            $stmt->execute([$conversation_id, $after_id]);
+            $messages = $stmt->fetchAll();
+
+            $response = [];
+            foreach ($messages as $msg) {
+                $response[] = [
+                    'type' => 'new_message',
+                    'conversation_id' => $conversation_id,
+                    'sender_id' => $msg['sender_id'],
+                    'sender_type' => $msg['sender_type'],
+                    'content' => $msg['content'],
+                    'created_at' => $msg['created_at'],
+                    'id' => $msg['id']
+                ];
+            }
+
+            // Clear any previous output
+            if (ob_get_length())
+                ob_clean();
+
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            exit;
+
+        } catch (\Throwable $e) {
+            // Clear any previous output
+            if (ob_get_length())
+                ob_clean();
+
+            header('HTTP/1.1 500 Internal Server Error');
+            echo json_encode(['error' => 'Internal Server Error']);
+            exit;
+        }
     }
 }

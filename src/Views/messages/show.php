@@ -1,3 +1,4 @@
+<?php use App\Config\AppConfig; ?>
 <div class="chat-view-content">
     <div class="chat-header" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
@@ -48,50 +49,15 @@
     <script>
         (function () {
             const convId = <?= $conversation['id'] ?>;
-            const userId = <?= $_SESSION['user_id'] ?>;
-            const userType = '<?= $_SESSION['user_type'] ?>';
             const chatMessages = document.getElementById('chat-messages-' + convId);
             const form = document.querySelector('.message-form[data-conversation-id="' + convId + '"]');
-            let ws;
-
-            function connect() {
-                ws = new WebSocket(`ws://localhost:8000?user_id=${userId}&user_type=${userType}`);
-
-                ws.onopen = function () {
-                    console.log('Connected to WebSocket');
-                    if (form) {
-                        form.querySelector('button').disabled = false;
-                        form.querySelector('input').disabled = false;
-                    }
-                };
-
-                ws.onmessage = function (e) {
-                    const data = JSON.parse(e.data);
-
-                    if (data.type === 'new_message' && data.conversation_id == convId) {
-                        appendMessage(data);
-                    } else if (data.type === 'project_accepted' && data.conversation_id == convId) {
-                        handleProjectAccepted(data);
-                    }
-                };
-
-                ws.onclose = function () {
-                    console.log('Disconnected. Reconnecting...');
-                    setTimeout(connect, 3000);
-                };
-
-                ws.onerror = function (err) {
-                    console.error('WebSocket error:', err);
-                    ws.close();
-                };
-            }
-
-            connect();
+            let lastMessageId = <?= !empty($messages) ? end($messages)['id'] : 0 ?>;
+            let pollInterval;
 
             function appendMessage(data) {
                 if (!chatMessages) return;
 
-                const isMe = (data.sender_id == userId && data.sender_type === userType);
+                const isMe = (data.sender_id == <?= $_SESSION['user_id'] ?> && data.sender_type === '<?= $_SESSION['user_type'] ?>');
                 const div = document.createElement('div');
                 div.className = `message ${isMe ? 'message-me' : 'message-other'}`;
 
@@ -108,26 +74,34 @@
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
 
-            function handleProjectAccepted(data) {
-                const isDev = userType === 'developer';
-                const hasAccepted = isDev ? data.dev_accepted : data.company_accepted;
-                const actionsDiv = document.querySelector('.acceptance-actions');
+            function startPolling() {
+                // Clear any existing interval to prevent duplicates if re-injected
+                if (pollInterval) clearInterval(pollInterval);
 
-                if (data.project_status === 'in_progress') {
-                    const headerDiv = document.querySelector('.chat-header > div');
-                    if (!headerDiv.querySelector('.badge-primary')) {
-                        const badge = document.createElement('span');
-                        badge.className = 'badge badge-primary';
-                        badge.textContent = 'Projet en cours';
-                        headerDiv.appendChild(badge);
+                pollInterval = setInterval(function () {
+                    // Only poll if the chat view is still in the DOM
+                    if (!document.getElementById('chat-messages-' + convId)) {
+                        clearInterval(pollInterval);
+                        return;
                     }
-                    if (actionsDiv) actionsDiv.innerHTML = '';
-                } else {
-                    if (actionsDiv && hasAccepted) {
-                        actionsDiv.innerHTML = '<span class="text-muted small">En attente de l\'autre partie...</span>';
-                    }
-                }
+
+                    fetch('/messages/poll?conversation_id=' + convId + '&after_id=' + lastMessageId)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data && data.length > 0) {
+                                data.forEach(msg => {
+                                    appendMessage(msg);
+                                    lastMessageId = Math.max(lastMessageId, msg.id);
+                                });
+                                // Mark read if we received messages
+                                fetch('/messages/mark-read?conversation_id=' + convId, { method: 'POST' });
+                            }
+                        })
+                        .catch(err => console.error('Poll error:', err));
+                }, 3000); // Poll every 3 seconds
             }
+
+            startPolling();
 
             if (chatMessages) {
                 chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -143,16 +117,44 @@
 
                     if (!content) return false;
 
-                    if (ws && ws.readyState === WebSocket.OPEN) {
-                        ws.send(JSON.stringify({
-                            type: 'chat_message',
-                            conversation_id: convId,
-                            content: content
-                        }));
-                        input.value = '';
-                    } else {
-                        alert('Erreur de connexion. Réessayez.');
-                    }
+                    const formData = new FormData();
+                    formData.append('conversation_id', convId);
+                    formData.append('content', content);
+
+                    fetch('/messages/store', {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        body: formData
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                input.value = '';
+                                // The poll will pick up the message, or we can append it immediately
+                                // Appending immediately is better for UX
+                                // But we need the ID. The store response doesn't return the full message object usually.
+                                // Let's just wait for poll or trigger a poll immediately.
+                                setTimeout(() => {
+                                    fetch('/messages/poll?conversation_id=' + convId + '&after_id=' + lastMessageId)
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            if (data && data.length > 0) {
+                                                data.forEach(msg => {
+                                                    appendMessage(msg);
+                                                    lastMessageId = Math.max(lastMessageId, msg.id);
+                                                });
+                                            }
+                                        });
+                                }, 100);
+                            } else {
+                                alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('Erreur de connexion');
+                        });
+
                     return false;
                 });
             }
@@ -164,16 +166,26 @@
                         e.preventDefault();
                         if (!confirm('Voulez-vous valider ce projet ?')) return;
 
-                        if (ws && ws.readyState === WebSocket.OPEN) {
-                            ws.send(JSON.stringify({
-                                type: 'accept_project',
-                                conversation_id: convId
-                            }));
-                            e.target.disabled = true;
-                            e.target.textContent = 'Validation...';
-                        } else {
-                            alert('Erreur de connexion');
-                        }
+                        const formData = new FormData();
+                        formData.append('conversation_id', convId);
+
+                        fetch('/messages/accept', {
+                            method: 'POST',
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                            body: formData
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    location.reload();
+                                } else {
+                                    alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+                                }
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                alert('Erreur de connexion');
+                            });
                     }
                 });
             }

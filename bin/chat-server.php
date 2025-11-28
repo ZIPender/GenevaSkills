@@ -1,20 +1,20 @@
 <?php
+require dirname(__DIR__) . '/vendor/autoload.php';
+
 use Ratchet\Server\IoServer;
 use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
 use App\WebSocket\Chat;
+use App\Config\AppConfig;
 
-require dirname(__DIR__) . '/vendor/autoload.php';
-require dirname(__DIR__) . '/src/autoload.php'; // Include custom autoloader for App namespace if not mapped in composer
-
-// Replicate session setup from public/index.php
-$sessionPath = dirname(__DIR__) . '/tmp';
-if (!file_exists($sessionPath)) {
-    mkdir($sessionPath, 0777, true);
+// Ensure dependencies are loaded
+if (!class_exists('Ratchet\Server\IoServer')) {
+    die("Error: Ratchet is not installed. Please run: composer require cboden/ratchet\n");
 }
-ini_set('session.save_path', $sessionPath);
-ini_set('session.gc_probability', 1);
-ini_set('session.gc_divisor', 100);
+
+$port = 8000; // Default port, can be changed or loaded from config if needed
+
+echo "Starting Chat Server on port $port...\n";
 
 $server = IoServer::factory(
     new HttpServer(
@@ -22,9 +22,7 @@ $server = IoServer::factory(
             new Chat()
         )
     ),
-    8080
+    $port
 );
-
-echo "Server running at http://127.0.0.1:8080\n";
 
 $server->run();
